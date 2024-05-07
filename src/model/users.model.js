@@ -7,7 +7,7 @@ const userShema = new Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true,
+        // trim: true,
         index: true
     },
     email: {
