@@ -3,18 +3,19 @@ import { ApiError } from "../utills/ApiError.js";
 import { ApiResponse } from "../utills/ApiResponse.js";
 import { user } from "../model/users.model.js";
 import { uploadOnCloudinary } from "../utills/cloudinary.js";
-const generateRefreshTokenAndAccessToke = async (userId){
+const generateRefreshTokenAndAccessToke = async (userId) => {
     try {
         const user = await user.findById(userId);
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
+
         user.refreshToken = refreshToken;
-        user.save({ validateBeforeSave: false })
+        await user.save({ validateBeforeSave: false })
         return { accessToken, refreshToken };
     } catch (error) {
         throw new ApiError(500, "something error")
     }
-}
+};
 
 const registerUser = asyncHandler(async function (req, res) {
     const data = req.body;
@@ -68,10 +69,18 @@ const userLogin = asyncHandler(async function (pareq, res) {
     }
     const { accessToken, refreshToken } = await generateRefreshTokenAndAccessToke(user._id)
     const option = {
-        httpOnly: true,
+        httpOnly: true, //it is only modified at  server side AND  not modified by frantend side
         secure: true
     }
     return res.status(200).cookie("accesstoken", accessToken, option).cookie("refreshToken", refreshToken, option)
         .json(new ApiResponse(200, { accessToken, refreshToken }, "logged user successfully"))
 })
-export { registerUser, userLogin }
+const logoutUser = asyncHandler(async (req, res) => {
+    await user.findByIdAndUpdate(req.user._id, { $set: { refreshToken: undefined } });
+    const option = {
+        httpOnly: true,
+        secure: true
+    }
+    return res.status(200).clearCookie("accessToken", option).clearCookie("refreshToken", option).json(new ApiResponse(200, {}, "User Logout Successfully"));
+})
+export { registerUser, userLogin, logoutUser }
