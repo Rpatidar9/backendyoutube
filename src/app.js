@@ -13,7 +13,9 @@ app.use(cookieParser())
 
 //import route
 import userRouter from "./routes/user.route.js";
-
+app.get("/", (req, res) => {
+    res.send("welocome to the server")
+})
 //declaration of route
 app.use("/api/v1/user", userRouter)
 export { app }
