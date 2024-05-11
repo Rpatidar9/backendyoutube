@@ -4,11 +4,14 @@ import jsonwebtoken from "jsonwebtoken";
 import { user } from "../model/users.model.js";
 export const verifyJWT = asyncHandler(async (req, res, next) => {
     try {
+        console.log(req.cookie, "cookie");
         const token = req.cookie?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
+        console.log(token, "get token");
         if (!token) {
             throw new ApiError(500, "Token is required");
         }
         const verifiedToken = jsonwebtoken.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        console.log(verifiedToken, "get token");
         if (!verifiedToken) {
             throw new ApiError(500, "Token is not valid");
         }

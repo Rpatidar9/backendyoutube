@@ -53,7 +53,6 @@ userShema.pre(
     }
 )
 userShema.methods.isPasswordCorrect = async function (password) {
-    console.log("password", typeof password);
     return await bcrypt.compare(password, this.password)
 }
 userShema.methods.generateAccessToken = function () {
